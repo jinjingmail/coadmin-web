@@ -19,7 +19,6 @@
           :load="getDeptDatas"
           :props="defaultProps"
           :expand-on-click-node="false"
-          lazy
           @node-click="handleNodeClick"
         />
       </el-col>
@@ -60,7 +59,7 @@
           <crudOperation show="" :permission="permission" />
         </div>
         <!--表单渲染-->
-        <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="570px">
+        <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible="crud.status.cu > 0" :title="crud.status.title" width="570px">
           <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="66px">
             <el-form-item label="用户名" prop="username">
               <el-input v-model="form.username" />
@@ -73,32 +72,6 @@
             </el-form-item>
             <el-form-item label="邮箱" prop="email">
               <el-input v-model="form.email" />
-            </el-form-item>
-            <el-form-item label="部门" prop="dept.id">
-              <treeselect
-                v-model="form.dept.id"
-                :options="depts"
-                :load-options="loadDepts"
-                style="width: 178px"
-                placeholder="选择部门"
-              />
-            </el-form-item>
-            <el-form-item label="岗位" prop="jobs">
-              <el-select
-                v-model="jobDatas"
-                style="width: 178px"
-                multiple
-                placeholder="请选择"
-                @remove-tag="deleteTag"
-                @change="changeJob"
-              >
-                <el-option
-                  v-for="item in jobs"
-                  :key="item.name"
-                  :label="item.name"
-                  :value="item.id"
-                />
-              </el-select>
             </el-form-item>
             <el-form-item label="性别">
               <el-radio-group v-model="form.gender" style="width: 178px">
@@ -114,6 +87,34 @@
                   :label="item.value"
                 >{{ item.label }}</el-radio>
               </el-radio-group>
+            </el-form-item>
+            <el-form-item label="岗位" prop="jobs">
+              <el-select
+                v-model="jobDatas"
+                style="width: 437px"
+                multiple
+                :multiple-limit="1"
+                placeholder="请选择"
+                @remove-tag="deleteTag"
+                @change="changeJob"
+              >
+                <el-option
+                  v-for="item in jobs"
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="部门" prop="depts">
+              <treeselect
+                v-model="userDeptsData"
+                :options="depts"
+                :load-options="loadDepts"
+                multiple
+                style="width: 437px"
+                placeholder="选择部门"
+              />
             </el-form-item>
             <el-form-item style="margin-bottom: 0;" label="角色" prop="roles">
               <el-select
@@ -147,11 +148,6 @@
           <el-table-column prop="gender" label="性别" />
           <el-table-column :show-overflow-tooltip="true" prop="phone" width="100" label="电话" />
           <el-table-column :show-overflow-tooltip="true" width="135" prop="email" label="邮箱" />
-          <el-table-column :show-overflow-tooltip="true" prop="dept" label="部门">
-            <template slot-scope="scope">
-              <div>{{ scope.row.dept.name }}</div>
-            </template>
-          </el-table-column>
           <el-table-column label="状态" align="center" prop="enabled">
             <template slot-scope="scope">
               <el-switch
@@ -209,7 +205,7 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 let userRoles = []
 let userJobs = []
-const defaultForm = { id: null, username: null, nickName: null, gender: '男', email: null, enabled: 'false', roles: [], jobs: [], dept: { id: null }, phone: null }
+const defaultForm = { id: null, username: null, nickName: null, gender: null, email: null, enabled: 'false', roles: [], jobs: [], depts: [], phone: null }
 export default {
   name: 'User',
   components: { Treeselect, crudOperation, rrOperation, udOperation, pagination, DateRangePicker },
@@ -233,8 +229,8 @@ export default {
     return {
       height: document.documentElement.clientHeight - 180 + 'px;',
       deptName: '', depts: [], deptDatas: [], jobs: [], level: 3, roles: [],
-      jobDatas: [], roleDatas: [], // 多选时使用
-      defaultProps: { children: 'children', label: 'name', isLeaf: 'leaf' },
+      jobDatas: [], roleDatas: [], userDeptsData: [], // 多选时使用
+      defaultProps: { children: 'children', label: 'name', isLeaf: 'treeLeaf' },
       permission: {
         add: ['admin', 'user:add'],
         edit: ['admin', 'user:edit'],
@@ -271,11 +267,14 @@ export default {
   created() {
     this.crud.msg.add = '新增成功，默认密码：123456'
   },
-  mounted: function() {
+  mounted() {
     const that = this
     window.onresize = function temp() {
       that.height = document.documentElement.clientHeight - 180 + 'px;'
     }
+    this.$nextTick(() => {
+      this.getDeptDatas()
+    })
   },
   methods: {
     changeRole(value) {
@@ -305,7 +304,8 @@ export default {
       if (form.id == null) {
         this.getDepts()
       } else {
-        this.getSupDepts(form.dept.id)
+        // this.getSupDepts(form.dept.id)
+        this.getDepts()
       }
       this.getRoleLevel()
       this.getJobs()
@@ -315,12 +315,15 @@ export default {
     [CRUD.HOOK.beforeToAdd]() {
       this.jobDatas = []
       this.roleDatas = []
+      this.userDeptsData = []
     },
     // 初始化编辑时候的角色与岗位
     [CRUD.HOOK.beforeToEdit](crud, form) {
-      this.getJobs(this.form.dept.id)
+      // this.getJobs(this.form.dept.id)
+      this.getJobs()
       this.jobDatas = []
       this.roleDatas = []
+      this.userDeptsData = []
       userRoles = []
       userJobs = []
       const _this = this
@@ -334,30 +337,51 @@ export default {
         const data = { id: job.id }
         userJobs.push(data)
       })
+      form.depts.forEach(function(dept, index) {
+        _this.userDeptsData.push(dept.id)
+      })
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
+      /*
       if (!crud.form.dept.id) {
         this.$message({
           message: '部门不能为空',
           type: 'warning'
         })
         return false
-      } else if (this.jobDatas.length === 0) {
+      } else
+      */
+      if (this.userDeptsData.length === 0) {
+        this.$message({
+          message: '部门不能为空',
+          type: 'warning'
+        })
+        return false
+      }
+      if (this.jobDatas.length === 0) {
         this.$message({
           message: '岗位不能为空',
           type: 'warning'
         })
         return false
-      } else if (this.roleDatas.length === 0) {
+      }
+      if (this.roleDatas.length === 0) {
         this.$message({
           message: '角色不能为空',
           type: 'warning'
         })
         return false
       }
+      const depts = []
+      this.userDeptsData.forEach(data => {
+        const d = { id: data }
+        depts.push(d)
+      })
+
       crud.form.roles = userRoles
       crud.form.jobs = userJobs
+      crud.form.depts = depts
       return true
     },
     // 获取左侧部门数据
@@ -383,21 +407,24 @@ export default {
     },
     getDepts() {
       getDepts({ enabled: true }).then(res => {
+        this.depts = res.content
+        /*
         this.depts = res.content.map(function(obj) {
           if (obj.hasChildren) {
             obj.children = null
           }
           return obj
-        })
+        })*/
       })
     },
     getSupDepts(deptId) {
       getDeptSuperior(Array.of(deptId)).then(res => {
         const date = res.content
-        this.buildDepts(date)
+        // this.buildDepts(date)
         this.depts = date
       })
     },
+    /*
     buildDepts(depts) {
       depts.forEach(data => {
         if (data.children) {
@@ -407,17 +434,19 @@ export default {
           data.children = null
         }
       })
-    },
+    },*/
     // 获取弹窗内部门数据
     loadDepts({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
         getDepts({ enabled: true, pid: parentNode.id }).then(res => {
+          parentNode.children = res.content
+          /*
           parentNode.children = res.content.map(function(obj) {
             if (obj.hasChildren) {
               obj.children = null
             }
             return obj
-          })
+          })*/
           setTimeout(() => {
             callback()
           }, 200)

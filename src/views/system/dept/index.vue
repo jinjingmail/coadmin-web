@@ -19,9 +19,9 @@
         <el-form-item label="部门名称" prop="name">
           <el-input v-model="form.name" style="width: 370px;" />
         </el-form-item>
-        <el-form-item label="部门排序" prop="deptSort">
+        <el-form-item label="部门排序" prop="sort">
           <el-input-number
-            v-model.number="form.deptSort"
+            v-model.number="form.sort"
             :min="0"
             :max="999"
             controls-position="right"
@@ -56,10 +56,10 @@
     <el-table
       ref="table"
       v-loading="crud.loading"
-      lazy
-      :load="getDeptDatas"
-      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       :data="crud.data"
+      lazy
+      :load="lazyLoad"
+      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       row-key="id"
       @select="crud.selectChange"
       @select-all="crud.selectAllChange"
@@ -67,7 +67,7 @@
     >
       <el-table-column :selectable="checkboxT" type="selection" width="55" />
       <el-table-column label="名称" prop="name" />
-      <el-table-column label="排序" prop="deptSort" />
+      <el-table-column label="排序" prop="sort" />
       <el-table-column label="状态" align="center" prop="enabled">
         <template slot-scope="scope">
           <el-switch
@@ -109,7 +109,7 @@ import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import DateRangePicker from '@/components/DateRangePicker'
 
-const defaultForm = { id: null, name: null, isTop: '1', subCount: 0, pid: null, deptSort: 999, enabled: 'true' }
+const defaultForm = { id: null, name: null, isTop: '1', pid: null, sort: 999, enabled: 'true' }
 export default {
   name: 'Dept',
   components: { Treeselect, crudOperation, rrOperation, udOperation, DateRangePicker },
@@ -126,7 +126,7 @@ export default {
         name: [
           { required: true, message: '请输入名称', trigger: 'blur' }
         ],
-        deptSort: [
+        sort: [
           { required: true, message: '请输入序号', trigger: 'blur', type: 'number' }
         ]
       },
@@ -143,12 +143,42 @@ export default {
   },
   methods: {
     getDeptDatas(tree, treeNode, resolve) {
+      console.log('getDeptDatas vv')
       const params = { pid: tree.id }
+      console.log('pid=' + params.pid)
       setTimeout(() => {
         crudDept.getDepts(params).then(res => {
           resolve(res.content)
         })
       }, 100)
+    },
+    lazyLoad(tree, treeNode, resolve) {
+      const a = this.crud.data
+      console.log('lazyLoad:' + tree.id + ', a.length=' + a.length)
+      /* for (var i = 0; i < a.length; ++i) {
+        if (a[i].id === tree.id) {
+          console.log(a[i].children)
+          resolve(a[i].children)
+          return
+        }
+      }
+      resolve([])*/
+      resolve(this.findChildren(tree.id, a))
+    },
+    findChildren(id, a) {
+      for (var i = 0; i < a.length; ++i) {
+        if (a[i].id === id) {
+          return (a[i].children)
+        } else {
+          if (a[i].children && a[i].children.length > 0) {
+            var x = this.findChildren(id, a[i].children)
+            if (x && x.length && x.length > 0) {
+              return x
+            }
+          }
+        }
+      }
+      return []
     },
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
@@ -165,12 +195,14 @@ export default {
       }
     },
     getSupDepts(id) {
+      console.log('getSupDepts xxx')
       crudDept.getDeptSuperior(Array.of(id)).then(res => {
         const date = res.content
-        this.buildDepts(date)
+        // this.buildDepts(date)
         this.depts = date
       })
     },
+    /*
     buildDepts(depts) {
       depts.forEach(data => {
         if (data.children) {
@@ -180,27 +212,32 @@ export default {
           data.children = null
         }
       })
-    },
+    },*/
     getDepts() {
+      console.log('getDepts xx')
       crudDept.getDepts({ enabled: true }).then(res => {
-        this.depts = res.content.map(function(obj) {
+        console.log('crudDept.getDepts xx')
+        this.depts = res.content
+        /* this.depts = res.content.map(function(obj) {
           if (obj.hasChildren) {
             obj.children = null
           }
           return obj
-        })
+        })*/
       })
     },
     // 获取弹窗内部门数据
     loadDepts({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
         crudDept.getDepts({ enabled: true, pid: parentNode.id }).then(res => {
+          parentNode.children = res.content
+          /*
           parentNode.children = res.content.map(function(obj) {
             if (obj.hasChildren) {
               obj.children = null
             }
             return obj
-          })
+          })*/
           setTimeout(() => {
             callback()
           }, 100)

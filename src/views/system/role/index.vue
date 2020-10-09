@@ -11,7 +11,7 @@
       <crudOperation :permission="permission" />
     </div>
     <!-- 表单渲染 -->
-    <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="520px">
+    <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible="crud.status.cu > 0" :title="crud.status.title" width="520px">
       <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="80px">
         <el-form-item label="角色名称" prop="name">
           <el-input v-model="form.name" style="width: 380px;" />
@@ -184,7 +184,7 @@ export default {
     [CRUD.HOOK.beforeToEdit](crud, form) {
       this.deptDatas = []
       if (form.dataScope === '自定义') {
-        this.getSupDepts(form.depts)
+        // this.getSupDepts(form.depts)
       }
       const _this = this
       form.depts.forEach(function(dept) {
@@ -269,12 +269,14 @@ export default {
     // 获取部门数据
     getDepts() {
       getDepts({ enabled: true }).then(res => {
+        this.depts = res.content
+        /*
         this.depts = res.content.map(function(obj) {
           if (obj.hasChildren) {
             obj.children = null
           }
           return obj
-        })
+        })*/
       })
     },
     getSupDepts(depts) {
@@ -284,10 +286,11 @@ export default {
       })
       getDeptSuperior(ids).then(res => {
         const date = res.content
-        this.buildDepts(date)
+        // this.buildDepts(date)
         this.depts = date
       })
     },
+    /*
     buildDepts(depts) {
       depts.forEach(data => {
         if (data.children) {
@@ -297,17 +300,19 @@ export default {
           data.children = null
         }
       })
-    },
+    },*/
     // 获取弹窗内部门数据
     loadDepts({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
         getDepts({ enabled: true, pid: parentNode.id }).then(res => {
+          parentNode.children = res.content
+          /*
           parentNode.children = res.content.map(function(obj) {
             if (obj.hasChildren) {
               obj.children = null
             }
             return obj
-          })
+          })*/
           setTimeout(() => {
             callback()
           }, 200)
