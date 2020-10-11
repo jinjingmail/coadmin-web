@@ -4,8 +4,7 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
-        <el-input v-model="query.name" clearable size="small" placeholder="输入部门名称搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-        <date-range-picker v-model="query.createTime" class="date-item" />
+        <el-input v-model="query.blurry" clearable size="small" placeholder="输入部门名称搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <el-select v-model="query.enabled" clearable size="small" placeholder="状态" class="filter-item" style="width: 90px" @change="crud.toQuery">
           <el-option v-for="item in enabledTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
         </el-select>
@@ -14,7 +13,7 @@
       <crudOperation :permission="permission" />
     </div>
     <!--表单组件-->
-    <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
+    <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible="crud.status.cu > 0" :title="crud.status.title" width="500px">
       <el-form ref="form" inline :model="form" :rules="rules" size="small" label-width="80px">
         <el-form-item label="部门名称" prop="name">
           <el-input v-model="form.name" style="width: 370px;" />
@@ -107,12 +106,11 @@ import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
-import DateRangePicker from '@/components/DateRangePicker'
 
-const defaultForm = { id: null, name: null, isTop: '1', pid: null, sort: 999, enabled: 'true' }
+const defaultForm = { id: null, name: null, isTop: '0', pid: null, sort: 999, enabled: 'true' }
 export default {
   name: 'Dept',
-  components: { Treeselect, crudOperation, rrOperation, udOperation, DateRangePicker },
+  components: { Treeselect, crudOperation, rrOperation, udOperation },
   cruds() {
     return CRUD({ title: '部门', url: 'api/dept', crudMethod: { ...crudDept }})
   },
@@ -142,27 +140,8 @@ export default {
     }
   },
   methods: {
-    getDeptDatas(tree, treeNode, resolve) {
-      console.log('getDeptDatas vv')
-      const params = { pid: tree.id }
-      console.log('pid=' + params.pid)
-      setTimeout(() => {
-        crudDept.getDepts(params).then(res => {
-          resolve(res.content)
-        })
-      }, 100)
-    },
     lazyLoad(tree, treeNode, resolve) {
       const a = this.crud.data
-      console.log('lazyLoad:' + tree.id + ', a.length=' + a.length)
-      /* for (var i = 0; i < a.length; ++i) {
-        if (a[i].id === tree.id) {
-          console.log(a[i].children)
-          resolve(a[i].children)
-          return
-        }
-      }
-      resolve([])*/
       resolve(this.findChildren(tree.id, a))
     },
     findChildren(id, a) {

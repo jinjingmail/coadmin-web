@@ -11,14 +11,15 @@
             placeholder="输入部门名称搜索"
             prefix-icon="el-icon-search"
             class="filter-item"
-            @input="getDeptDatas"
           />
         </div>
         <el-tree
+          ref="treeDept"
           :data="deptDatas"
           :load="getDeptDatas"
           :props="defaultProps"
           :expand-on-click-node="false"
+          :filter-node-method="treeDeptFilter"
           @node-click="handleNodeClick"
         />
       </el-col>
@@ -64,10 +65,13 @@
             <el-form-item label="用户名" prop="username">
               <el-input v-model="form.username" />
             </el-form-item>
+            <el-form-item label="ID" prop="id">
+              {{ form.id }}
+            </el-form-item>
             <el-form-item label="电话" prop="phone">
               <el-input v-model.number="form.phone" />
             </el-form-item>
-            <el-form-item label="昵称" prop="nickName">
+            <el-form-item v-if="false" label="昵称" prop="nickName">
               <el-input v-model="form.nickName" />
             </el-form-item>
             <el-form-item label="邮箱" prop="email">
@@ -144,7 +148,7 @@
         <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
           <el-table-column :selectable="checkboxT" type="selection" width="55" />
           <el-table-column :show-overflow-tooltip="true" prop="username" label="用户名" />
-          <el-table-column :show-overflow-tooltip="true" prop="nickName" label="昵称" />
+          <el-table-column v-if="false" :show-overflow-tooltip="true" prop="nickName" label="昵称" />
           <el-table-column prop="gender" label="性别" />
           <el-table-column :show-overflow-tooltip="true" prop="phone" width="100" label="电话" />
           <el-table-column :show-overflow-tooltip="true" width="135" prop="email" label="邮箱" />
@@ -245,12 +249,7 @@ export default {
           { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
         ],
-        nickName: [
-          { required: true, message: '请输入用户昵称', trigger: 'blur' },
-          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
-        ],
         email: [
-          { required: true, message: '请输入邮箱地址', trigger: 'blur' },
           { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
         ],
         phone: [
@@ -263,6 +262,11 @@ export default {
     ...mapGetters([
       'user'
     ])
+  },
+  watch: {
+    deptName(val) {
+      this.$refs.treeDept.filter(val)
+    }
   },
   created() {
     this.crud.msg.add = '新增成功，默认密码：123456'
@@ -379,6 +383,7 @@ export default {
         depts.push(d)
       })
 
+      crud.form.nickName = crud.form.username
       crud.form.roles = userRoles
       crud.form.jobs = userJobs
       crud.form.depts = depts
@@ -456,11 +461,15 @@ export default {
     // 切换部门
     handleNodeClick(data) {
       if (data.pid === 0) {
-        this.query.deptId = null
+        this.query.deptId = data.id
       } else {
         this.query.deptId = data.id
       }
       this.crud.toQuery()
+    },
+    treeDeptFilter(value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
     },
     // 改变状态
     changeEnabled(data, val) {
