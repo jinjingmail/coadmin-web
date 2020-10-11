@@ -1,14 +1,14 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-      <!--侧边部门数据-->
+      <!--侧边机构数据-->
       <el-col :xs="9" :sm="6" :md="5" :lg="4" :xl="4">
         <div class="head-container">
           <el-input
             v-model="deptName"
             clearable
             size="small"
-            placeholder="输入部门名称搜索"
+            placeholder="输入机构名称搜索"
             prefix-icon="el-icon-search"
             class="filter-item"
           />
@@ -110,14 +110,14 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item label="部门" prop="depts">
+            <el-form-item label="机构" prop="depts">
               <treeselect
                 v-model="userDeptsData"
                 :options="depts"
                 :load-options="loadDepts"
                 multiple
                 style="width: 437px"
-                placeholder="选择部门"
+                placeholder="选择机构"
               />
             </el-form-item>
             <el-form-item style="margin-bottom: 0;" label="角色" prop="roles">
@@ -350,7 +350,7 @@ export default {
       /*
       if (!crud.form.dept.id) {
         this.$message({
-          message: '部门不能为空',
+          message: '机构不能为空',
           type: 'warning'
         })
         return false
@@ -358,7 +358,7 @@ export default {
       */
       if (this.userDeptsData.length === 0) {
         this.$message({
-          message: '部门不能为空',
+          message: '机构不能为空',
           type: 'warning'
         })
         return false
@@ -389,7 +389,7 @@ export default {
       crud.form.depts = depts
       return true
     },
-    // 获取左侧部门数据
+    // 获取左侧机构数据
     getDeptDatas(node, resolve) {
       const sort = 'id,desc'
       const params = { sort: sort }
@@ -440,7 +440,7 @@ export default {
         }
       })
     },*/
-    // 获取弹窗内部门数据
+    // 获取弹窗内机构数据
     loadDepts({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
         getDepts({ enabled: true, pid: parentNode.id }).then(res => {
@@ -458,7 +458,7 @@ export default {
         })
       }
     },
-    // 切换部门
+    // 切换机构
     handleNodeClick(data) {
       if (data.pid === 0) {
         this.query.deptId = data.id

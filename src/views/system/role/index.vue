@@ -176,11 +176,11 @@ export default {
     [CRUD.HOOK.afterRefresh]() {
       this.$refs.menu.setCheckedKeys([])
     },
-    // 新增前初始化部门信息
+    // 新增前初始化机构信息
     [CRUD.HOOK.beforeToAdd]() {
       this.deptDatas = []
     },
-    // 编辑前初始化自定义数据权限的部门信息
+    // 编辑前初始化自定义数据权限的机构信息
     [CRUD.HOOK.beforeToEdit](crud, form) {
       this.deptDatas = []
       if (form.dataScope === '自定义') {
@@ -266,7 +266,7 @@ export default {
         }
       })
     },
-    // 获取部门数据
+    // 获取机构数据
     getDepts() {
       getDepts({ enabled: true }).then(res => {
         this.depts = res.content
@@ -301,7 +301,7 @@ export default {
         }
       })
     },*/
-    // 获取弹窗内部门数据
+    // 获取弹窗内机构数据
     loadDepts({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
         getDepts({ enabled: true, pid: parentNode.id }).then(res => {
@@ -319,7 +319,7 @@ export default {
         })
       }
     },
-    // 如果数据权限为自定义则获取部门数据
+    // 如果数据权限为自定义则获取机构数据
     changeScope() {
       if (this.form.dataScope === '自定义') {
         this.getDepts()
