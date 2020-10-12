@@ -5,7 +5,7 @@
       <el-col :xs="9" :sm="6" :md="5" :lg="4" :xl="4">
         <div class="head-container">
           <el-input
-            v-model="deptName"
+            v-model="filterDeptName"
             clearable
             size="small"
             placeholder="输入机构名称搜索"
@@ -20,7 +20,7 @@
           :props="defaultProps"
           :expand-on-click-node="false"
           :filter-node-method="treeDeptFilter"
-          @node-click="handleNodeClick"
+          @node-click="handleTreeDeptNodeClick"
         />
       </el-col>
       <!--用户数据-->
@@ -194,7 +194,7 @@
 <script>
 import crudUser from '@/api/system/user'
 import { isvalidPhone } from '@/utils/validate'
-import { getDepts, getDeptSuperior } from '@/api/system/dept'
+import { getDepts } from '@/api/system/dept'
 import { getAll, getLevel } from '@/api/system/role'
 import { getAllJob } from '@/api/system/job'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
@@ -232,7 +232,7 @@ export default {
     }
     return {
       height: document.documentElement.clientHeight - 180 + 'px;',
-      deptName: '', depts: [], deptDatas: [], jobs: [], level: 3, roles: [],
+      filterDeptName: '', depts: [], deptDatas: [], jobs: [], level: 3, roles: [],
       jobDatas: [], roleDatas: [], userDeptsData: [], // 多选时使用
       defaultProps: { children: 'children', label: 'name', isLeaf: 'treeLeaf' },
       permission: {
@@ -264,7 +264,7 @@ export default {
     ])
   },
   watch: {
-    deptName(val) {
+    filterDeptName(val) {
       this.$refs.treeDept.filter(val)
     }
   },
@@ -308,7 +308,6 @@ export default {
       if (form.id == null) {
         this.getDepts()
       } else {
-        // this.getSupDepts(form.dept.id)
         this.getDepts()
       }
       this.getRoleLevel()
@@ -347,15 +346,6 @@ export default {
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
-      /*
-      if (!crud.form.dept.id) {
-        this.$message({
-          message: '机构不能为空',
-          type: 'warning'
-        })
-        return false
-      } else
-      */
       if (this.userDeptsData.length === 0) {
         this.$message({
           message: '机构不能为空',
@@ -413,45 +403,13 @@ export default {
     getDepts() {
       getDepts({ enabled: true }).then(res => {
         this.depts = res.content
-        /*
-        this.depts = res.content.map(function(obj) {
-          if (obj.hasChildren) {
-            obj.children = null
-          }
-          return obj
-        })*/
       })
     },
-    getSupDepts(deptId) {
-      getDeptSuperior(Array.of(deptId)).then(res => {
-        const date = res.content
-        // this.buildDepts(date)
-        this.depts = date
-      })
-    },
-    /*
-    buildDepts(depts) {
-      depts.forEach(data => {
-        if (data.children) {
-          this.buildDepts(data.children)
-        }
-        if (data.hasChildren && !data.children) {
-          data.children = null
-        }
-      })
-    },*/
     // 获取弹窗内机构数据
     loadDepts({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
         getDepts({ enabled: true, pid: parentNode.id }).then(res => {
           parentNode.children = res.content
-          /*
-          parentNode.children = res.content.map(function(obj) {
-            if (obj.hasChildren) {
-              obj.children = null
-            }
-            return obj
-          })*/
           setTimeout(() => {
             callback()
           }, 200)
@@ -459,7 +417,7 @@ export default {
       }
     },
     // 切换机构
-    handleNodeClick(data) {
+    handleTreeDeptNodeClick(data) {
       if (data.pid === 0) {
         this.query.deptId = data.id
       } else {

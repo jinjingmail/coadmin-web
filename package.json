@@ -1,8 +1,8 @@
 {
-  "name": "eladmin-web",
+  "name": "coadmin-web",
   "version": "2.6.0",
-  "description": "EL-ADMIN 前端源码",
-  "author": "Zheng Jie",
+  "description": "CoAdmin 前端源码",
+  "author": "Zheng Jie,Jinjin",
   "license": "Apache-2.0",
   "scripts": {
     "dev": "vue-cli-service serve",
@@ -27,10 +27,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/elunez/eladmin-web.git"
+    "url": "https://github.com/jinjingmail/coadmin-web.git"
   },
   "bugs": {
-    "url": "https://github.com/elunez/eladmin/issues"
+    "url": "https://github.com/jinjingmail/coadmin/issues"
   },
   "dependencies": {
     "@riophae/vue-treeselect": "0.4.0",
