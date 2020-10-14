@@ -19,6 +19,7 @@
               </div>
             </div>
             <ul class="user-info">
+              <li><svg-icon icon-class="user1" /> ID<div class="user-right">{{ user.id }}</div></li>
               <li><div style="height: 100%"><svg-icon icon-class="login" /> 登录账号<div class="user-right">{{ user.username }}</div></div></li>
               <li><svg-icon icon-class="user1" /> 用户名称 <div class="user-right">{{ user.username }}</div></li>
               <li><svg-icon icon-class="phone" /> 手机号码 <div class="user-right">{{ user.phone }}</div></li>
