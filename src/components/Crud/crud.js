@@ -62,6 +62,11 @@ function CRUD(options) {
     ...options,
     // 记录数据状态
     dataStatus: {},
+    // 定义状态常量
+    STATUS_NORMAL: CRUD.STATUS.NORMAL,
+    STATUS_PREPARED: CRUD.STATUS.PREPARED,
+    STATUS_PROCESSING: CRUD.STATUS.PROCESSING,
+
     status: {
       add: CRUD.STATUS.NORMAL,
       edit: CRUD.STATUS.NORMAL,
@@ -618,7 +623,11 @@ function mergeOptions(src, opts) {
   }
   for (const key in src) {
     if (opts.hasOwnProperty(key)) {
-      optsRet[key] = opts[key]
+      if (key === 'optShow') {
+        Object.assign(optsRet[key], opts[key])
+      } else {
+        optsRet[key] = opts[key]
+      }
     }
   }
   return optsRet
