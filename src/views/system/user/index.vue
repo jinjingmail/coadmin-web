@@ -193,7 +193,7 @@
 
 <script>
 import crudUser from '@/api/system/user'
-import { isvalidPhone } from '@/utils/validate'
+import { validPhone } from '@/utils/validate'
 import { getDepts } from '@/api/system/dept'
 import { getAll, getLevel } from '@/api/system/role'
 import { getAllJob } from '@/api/system/job'
@@ -221,10 +221,10 @@ export default {
   dicts: ['user_status'],
   data() {
     // 自定义验证
-    const validPhone = (rule, value, callback) => {
+    const myValidPhone = (rule, value, callback) => {
       if (!value) {
         callback(new Error('请输入电话号码'))
-      } else if (!isvalidPhone(value)) {
+      } else if (!validPhone(value)) {
         callback(new Error('请输入正确的11位手机号码'))
       } else {
         callback()
@@ -253,7 +253,7 @@ export default {
           { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
         ],
         phone: [
-          { required: true, trigger: 'blur', validator: validPhone }
+          { required: true, trigger: 'blur', validator: myValidPhone }
         ]
       }
     }

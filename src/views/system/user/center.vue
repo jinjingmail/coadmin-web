@@ -107,7 +107,7 @@ import updatePass from './center/updatePass'
 import updateEmail from './center/updateEmail'
 import { getToken } from '@/utils/auth'
 import store from '@/store'
-import { isvalidPhone } from '@/utils/validate'
+import { validPhone } from '@/utils/validate'
 import { parseTime } from '@/utils/index'
 import crud from '@/mixins/crud'
 import { editUser } from '@/api/system/user'
@@ -118,10 +118,10 @@ export default {
   mixins: [crud],
   data() {
     // 自定义验证
-    const validPhone = (rule, value, callback) => {
+    const myValidPhone = (rule, value, callback) => {
       if (!value) {
         callback(new Error('请输入电话号码'))
-      } else if (!isvalidPhone(value)) {
+      } else if (!validPhone(value)) {
         callback(new Error('请输入正确的11位手机号码'))
       } else {
         callback()
@@ -138,7 +138,7 @@ export default {
       form: {},
       rules: {
         phone: [
-          { required: true, trigger: 'blur', validator: validPhone }
+          { required: true, trigger: 'blur', validator: myValidPhone }
         ]
       }
     }
