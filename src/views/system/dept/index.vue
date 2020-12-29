@@ -125,7 +125,7 @@
 </template>
 
 <script>
-import crudDept from '@/api/system/dept'
+import crudDept, { getDepts } from '@/api/system/dept'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
@@ -133,7 +133,6 @@ import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
-import { getDepts } from '@/api/system/dept'
 
 const defaultForm = { id: null, name: null, isTop: '0', pid: null, sort: 999, enabled: 'true' }
 export default {
@@ -156,7 +155,7 @@ export default {
           { required: true, message: '请输入名称', trigger: 'blur' }
         ],
         sort: [
-          { required: true, message: '请输入序号', trigger: 'blur', type: 'number' }
+          { required: true, message: '请输入排序', trigger: 'blur', type: 'number' }
         ]
       },
       permission: {

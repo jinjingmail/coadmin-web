@@ -9,9 +9,9 @@
     <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
       <el-table-column type="selection" width="55" />
       <el-table-column prop="name" label="名称" />
-      <el-table-column prop="jobSort" label="排序">
+      <el-table-column prop="sort" label="排序">
         <template slot-scope="scope">
-          {{ scope.row.jobSort }}
+          {{ scope.row.sort }}
         </template>
       </el-table-column>
       <el-table-column prop="status" label="状态" align="center">
@@ -68,7 +68,7 @@ export default {
     return CRUD({
       title: '岗位',
       url: 'api/job',
-      sort: ['jobSort,asc', 'id,desc'],
+      sort: ['sort,asc', 'id,desc'],
       crudMethod: { ...crudJob }
     })
   },

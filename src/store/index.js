@@ -19,7 +19,9 @@ const modules = modulesFiles.keys().reduce((modules, modulePath) => {
 
 const store = new Vuex.Store({
   modules,
-  getters
+  getters,
+  // enable strict mode (adds overhead!) for dev mode only
+  strict: process.env.DEV
 })
 
 export default store

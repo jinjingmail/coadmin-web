@@ -25,10 +25,10 @@
       </el-form-item>
       <el-form-item
         label="排序"
-        prop="jobSort"
+        prop="sort"
       >
         <el-input-number
-          v-model.number="form.jobSort"
+          v-model.number="form.sort"
           :min="0"
           :max="999"
           controls-position="right"
@@ -77,7 +77,7 @@ import { form } from '@crud/crud'
 const defaultForm = {
   id: null,
   name: '',
-  jobSort: 999,
+  sort: 10,
   enabled: true
 }
 export default {
@@ -94,8 +94,8 @@ export default {
         name: [
           { required: true, message: '请输入名称', trigger: 'blur' }
         ],
-        jobSort: [
-          { required: true, message: '请输入序号', trigger: 'blur', type: 'number' }
+        sort: [
+          { required: true, message: '请输入排序', trigger: 'blur', type: 'number' }
         ]
       }
     }
