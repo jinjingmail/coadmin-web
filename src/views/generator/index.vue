@@ -105,7 +105,7 @@ export default {
         this.crud.refresh()
         this.crud.notify('同步成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
         this.syncLoading = false
-      }).then(() => {
+      }).catch(() => {
         this.syncLoading = false
       })
     }

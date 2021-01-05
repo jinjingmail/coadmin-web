@@ -285,7 +285,7 @@ export default {
         this.init()
         this.notify('同步成功', 'success')
         this.syncLoading = false
-      }).then(() => {
+      }).catch(() => {
         this.syncLoading = false
       })
     },
